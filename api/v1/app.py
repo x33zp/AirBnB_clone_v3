@@ -8,10 +8,12 @@ app = Flask(__name__)
 
 app.register_blueprint(app_views)
 
+
 @app.teardown_appcontext
 def close_db(error):
     """ Close Storage """
     storage.close()
+
 
 if __name__ == '__main__':
     host = environ.get('HBNB_API_HOST')
