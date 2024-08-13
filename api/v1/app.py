@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+"""Flask App"""
 from flask import Flask
 from models import storage
 from api.v1.views import app_views
@@ -16,6 +17,7 @@ def close_db(error):
 
 
 if __name__ == '__main__':
+    """Main function"""
     host = environ.get('HBNB_API_HOST')
     port = environ.get('HBNB_API_PORT')
 
