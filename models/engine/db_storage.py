@@ -85,7 +85,7 @@ class DBStorage:
         for value in all_cls.values():
             if value.id == id:
                 return value
-    
+
     def count(self, cls=None):
         """Count objects"""
         all_obj = self.all(cls)
