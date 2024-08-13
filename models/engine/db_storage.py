@@ -79,7 +79,7 @@ class DBStorage:
         """A method to retrieve one object"""
         if cls not in classes.values():
             return None
-        
+
         all_cls = models.storage.all(cls)
 
         for value in all_cls.values():
