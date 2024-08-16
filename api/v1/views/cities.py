@@ -43,7 +43,7 @@ def delete_city(city_id):
     return make_response(jsonify({}), 200)
 
 
-@app_views.route('/<state_id>/cities', methods=['POST'], strict_slashes=False)
+@app_views.route('states/<state_id>/cities', methods=['POST'], strict_slashes=False)
 def create_city(state_id):
     """Creates a state object"""
     state = storage.get(State, state_id)
@@ -66,22 +66,21 @@ def create_city(state_id):
     return make_response(jsonify(new_city.to_dict()), 201)
 
 
-@app_views.route('/citiess/<city_id>', methods=['PUT'], strict_slashes=False)
+@app_views.route('/cities/<city_id>', methods=['PUT'], strict_slashes=False)
 def update_city(city_id):
     """Updates a State objectt by id"""
     city = storage.get(City, city_id)
     if not city:
         abort(404)
-    if not request.is_json:
+
+    if not request.get_json():
         abort(400, description="Not a JSON")
 
+    ignore_keys = ['id', 'state_id', 'created_at', 'updated_at']
+
     data = request.get_json()
-
-    ignore_keys = ['id', 'created_at', 'updated_at']
-
     for key, value in data.items():
         if key not in ignore_keys:
             setattr(city, key, value)
     storage.save()
-
     return make_response(jsonify(city.to_dict()), 200)
