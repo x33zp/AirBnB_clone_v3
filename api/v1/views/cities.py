@@ -52,7 +52,7 @@ def create_city(state_id):
     if not state:
         abort(404)
 
-    if not request.get_json():
+    if not request.is_json:
         abort(400, description="Not a JSON")
 
     data = request.get_json()
@@ -74,7 +74,7 @@ def update_city(city_id):
     if not city:
         abort(404)
 
-    if not request.get_json():
+    if not request.is_json:
         abort(400, description="Not a JSON")
 
     ignore_keys = ['id', 'state_id', 'created_at', 'updated_at']
