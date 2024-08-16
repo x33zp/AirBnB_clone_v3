@@ -65,7 +65,7 @@ def update_state(state_id):
 
     ignore_keys = ['id', 'created_at', 'updated_at']
 
-    for key, value in data.items():i
+    for key, value in data.items():
         if key not in ignore_keys:
             setattr(state, key, value)
     storage.save()
