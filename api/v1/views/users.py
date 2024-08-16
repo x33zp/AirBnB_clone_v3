@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Handles all RESTful API actions for Users"""
+"""Handles all RESTful API actions for Amenity"""
 from models.user import User
 from flask import jsonify, abort, request, make_response
 from api.v1.views import app_views
@@ -7,8 +7,10 @@ from models import storage
 
 
 @app_views.route('/users', methods=['GET'], strict_slashes=False)
-@app_views.route('/users/<user_id>', methods=['GET'], strict_slashes=False)
+@app_views.route('/users/<user_id>', methods=['GET'],
+                 strict_slashes=False)
 def get_user(user_id=None):
+    """Get User"""
     if user_id is None:
         all_users = storage.all(User).values()
         user_objs = []
@@ -25,7 +27,7 @@ def get_user(user_id=None):
 @app_views.route('/users/<user_id>', methods=['DELETE'],
                  strict_slashes=False)
 def delete_user(user_id):
-    """Deletes a User obj by id"""
+    """Deletes a USer obj by id"""
     user = storage.get(User, user_id)
     if not user:
         abort(404)
@@ -52,7 +54,8 @@ def create_user():
     return make_response(jsonify(new_user.to_dict()), 201)
 
 
-@app_views.route('/users/<user_id>', methods=['PUT'], strict_slashes=False)
+@app_views.route('/users/<user_id>', methods=['PUT'],
+                 strict_slashes=False)
 def update_user(user_id):
     """Updates a User objectt by id"""
     user = storage.get(User, user_id)
