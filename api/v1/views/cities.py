@@ -1,25 +1,22 @@
 #!/usr/bin/python3
 """Handles all RESTful API actions for States"""
 from models.city import City
+from models.state import State
 from flask import jsonify, abort, request, make_response
 from api.v1.views import app_views
 from models import storage
 
 
-@app_views.route('/cities', methods=['GET'], strict_slashes=False)
-@app_views.route('/cities/<city_id>', methods=['GET'], strict_slashes=False)
-def get_city(city_id=None):
-    if city_id is None:
-        all_cities = storage.all(City).values()
-        city_objs = []
-        for city in all_cities:
-            city_objs.append(city.to_dict())
-        return jsonify(city_objs)
-    else:
-        city = storage.get(City, city_id)
-        if not city:
-            abort(404)
-        return jsonify(city.to_dict())
+@app_views.route('/cities/<state_id>/cities', methods=['GET'], strict_slashes=False)
+def get_city(state_id):
+    state = storage.get(State, state_id)
+    if not state:
+        abort(404)
+
+    city_objs = []
+    for city in state.cities:
+        city_objs.append(city.to_dict())
+    return jsonify(city_objs)
 
 
 @app_views.route('/cities/<city_id>', methods=['DELETE'],
