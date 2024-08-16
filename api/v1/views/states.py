@@ -38,7 +38,7 @@ def delete_state(state_id):
 @app_views.route('/states', methods=['POST'], strict_slashes=False)
 def create_state():
     """Creates a state object"""
-    if not request.get_json():
+    if not request.is_json():
         abort(400, description="Not a JSON")
 
     data = request.get_json()
@@ -58,7 +58,7 @@ def update_state(state_id):
     state = storage.get(State, state_id)
     if not state:
         abort(404)
-    if not request.get_json():
+    if not request.is_json():
         abort(400, description="Not a JSON")
 
     data = request.get_json()
