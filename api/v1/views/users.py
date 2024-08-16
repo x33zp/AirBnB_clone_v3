@@ -1,76 +1,75 @@
 #!/usr/bin/python3
-"""Handles all RESTful API actions for Amenity"""
-from models.user import User
-from flask import jsonify, abort, request, make_response
+"""
+This file contains the User module
+"""
 from api.v1.views import app_views
+from flask import jsonify, abort, request, make_response
 from models import storage
+from models.user import User
+from flasgger.utils import swag_from
 
 
 @app_views.route('/users', methods=['GET'], strict_slashes=False)
-@app_views.route('/users/<user_id>', methods=['GET'],
-                 strict_slashes=False)
-def get_user(user_id=None):
-    """Get User"""
-    if user_id is None:
-        all_users = storage.all(User).values()
-        user_objs = []
-        for user in all_users:
-            user_objs.append(user.to_dict())
-        return jsonify(user_objs)
-    else:
-        user = storage.get(User, user_id)
-        if not user:
-            abort(404)
-        return jsonify(user.to_dict())
+@swag_from('documentation/user/get.yml', methods=['GET'])
+def get_all_users():
+    """ get users by id"""
+    all_list = [obj.to_dict() for obj in storage.all(User).values()]
+    return jsonify(all_list)
 
 
-@app_views.route('/users/<user_id>', methods=['DELETE'],
+@app_views.route('/users/<string:user_id>', methods=['GET'],
                  strict_slashes=False)
-def delete_user(user_id):
-    """Deletes a USer obj by id"""
+@swag_from('documentation/user/get_id.yml', methods=['GET'])
+def get_user(user_id):
+    """ get user by id"""
     user = storage.get(User, user_id)
-    if not user:
+    if user is None:
         abort(404)
+    return jsonify(user.to_dict())
 
-    storage.delete(user)
+
+@app_views.route('/users/<string:user_id>', methods=['DELETE'],
+                 strict_slashes=False)
+@swag_from('documentation/user/delete.yml', methods=['DELETE'])
+def del_user(user_id):
+    """ delete user by id"""
+    user = storage.get(User, user_id)
+    if user is None:
+        abort(404)
+    user.delete()
     storage.save()
     return jsonify({})
 
 
-@app_views.route('/users', methods=['POST'], strict_slashes=False)
-def create_user():
-    """Creates a User object"""
-    if not request.is_json:
-        abort(400, description="Not a JSON")
-
-    data = request.get_json()
-
-    if 'name' not in data:
-        abort(400, description="Missing name")
-
-    new_user = User(**data)
-    new_user.save()
-
-    return make_response(jsonify(new_user.to_dict()), 201)
-
-
-@app_views.route('/users/<user_id>', methods=['PUT'],
+@app_views.route('/users/', methods=['POST'],
                  strict_slashes=False)
-def update_user(user_id):
-    """Updates a User objectt by id"""
-    user = storage.get(User, user_id)
-    if not user:
+@swag_from('documentation/user/post.yml', methods=['POST'])
+def create_obj_user():
+    """ create new instance """
+    if not request.get_json():
+        return make_response(jsonify({"error": "Not a JSON"}), 400)
+    if 'email' not in request.get_json():
+        return make_response(jsonify({"error": "Missing email"}), 400)
+    if 'password'not in request.get_json():
+        return make_response(jsonify({"error": "Missing password"}), 400)
+    js = request.get_json()
+    obj = User(**js)
+    obj.save()
+    return (jsonify(obj.to_dict()), 201)
+
+
+@app_views.route('/users/<string:user_id>', methods=['PUT'],
+                 strict_slashes=False)
+@swag_from('documentation/user/put.yml', methods=['PUT'])
+def post_user(user_id):
+    """  """
+    if not request.get_json():
+        return make_response(jsonify({"error": "Not a JSON"}), 400)
+    obj = storage.get(User, user_id)
+    if obj is None:
         abort(404)
-    if not request.is_json:
-        abort(400, description="Not a JSON")
-
-    data = request.get_json()
-
-    ignore_keys = ['id', 'created_at', 'updated_at']
-
-    for key, value in data.items():
-        if key not in ignore_keys:
-            setattr(user, key, value)
+    for key, value in request.get_json().items():
+        if key not in ['id', 'email', 'created_at', 'updated']:
+            setattr(obj, key, value)
     storage.save()
-
-    return make_response(jsonify(user.to_dict()), 200)
+    return jsonify(obj.to_dict())
